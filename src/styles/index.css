@@ -1,0 +1,18 @@
+
+body,html{
+    margin: 0;
+    padding: 0;
+}
+
+/* Body defaults */
+body {
+    background: linear-gradient(135deg, #1d7694 0%, #475350 100%);
+    color: #333;
+    line-height: 1.6;
+}
+#root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}

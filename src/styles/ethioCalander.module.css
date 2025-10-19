@@ -20,7 +20,7 @@
 .ethiopianCalendar {
     position: absolute;
     top: 110%;
-    right: 0;
+    right: -50%;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -130,4 +130,46 @@
 
 .todayBtn:hover {
     background: #e9ecef;
+}
+
+
+
+
+
+.inputWrapper {
+    position: relative;;
+    width: 150px;
+    height: 45px;
+    padding-left: 20px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    gap: 0px;
+    background: white;
+    min-width: content-fit;
+    text-align: center;
+    border-radius: 8px;
+            
+}
+.input{
+    padding: 0 3px;
+    width: 25px;
+    height: 20px;
+    border: none;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+.input:nth-child(3){
+    width: 40px;
+}
+.input.noCaret {
+    caret-color: transparent;
+}
+.input:focus{
+    border: none;
+    outline: none;
+    background: #0289ff;
+    color: white;
 }

@@ -15,10 +15,9 @@ interface EthiopianCalendarProps {
 export default function EthiopianCalendar({
   value,
   onChange,
-  className = "",
 }: EthiopianCalendarProps) {
   // --- Conversion functions ---
-
+  const digitPattern = /^\d*$/;
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(value || new Date());
   const [currentEthiopian, setCurrentEthiopian] = useState(
@@ -27,7 +26,6 @@ export default function EthiopianCalendar({
   const [viewMonth, setViewMonth] = useState(currentEthiopian.month);
   const [viewYear, setViewYear] = useState(currentEthiopian.year);
   const [calendarAbove, setCalendarAbove] = useState(false);
-
   const calendarRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const iconRef = useRef<HTMLSpanElement>(null);
@@ -47,9 +45,7 @@ export default function EthiopianCalendar({
         calendarRef.current &&
         !calendarRef.current.contains(event.target as Node) &&
         iconRef.current &&
-        !iconRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
+        !iconRef.current.contains(event.target as Node)
       ) {
         setShowCalendar(false);
       }
@@ -70,9 +66,12 @@ export default function EthiopianCalendar({
   }, [showCalendar]);
   useEffect(() => {
     if (value) {
-      const formattedDate = `${value.getFullYear()}-${String(
-        value.getMonth() + 1
-      ).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+      const formattedDate = `${String(value.getFullYear()).padStart(
+        4,
+        "0"
+      )}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(
+        value.getDate()
+      ).padStart(2, "0")}`;
 
       onChange?.(formattedDate);
     }
@@ -99,16 +98,17 @@ export default function EthiopianCalendar({
   const handleDayClick = (day: number) => {
     const newGregDate = ethiopianToGregorian(viewYear, viewMonth, day);
     const newEthDate = { year: viewYear, month: viewMonth, day };
-
     setSelectedDate(newGregDate);
     setCurrentEthiopian(newEthDate);
     setShowCalendar(false);
 
     // Send yyyy-mm-dd string for consistency
-    const formattedDate = `${newGregDate.getFullYear()}-${String(
-      newGregDate.getMonth() + 1
-    ).padStart(2, "0")}-${String(newGregDate.getDate()).padStart(2, "0")}`;
-
+    const formattedDate = `${String(newGregDate.getFullYear()).padStart(
+      4,
+      "0"
+    )}-${String(newGregDate.getMonth() + 1).padStart(2, "0")}-${String(
+      newGregDate.getDate()
+    ).padStart(2, "0")}`;
     onChange?.(formattedDate);
   };
 
@@ -142,34 +142,116 @@ export default function EthiopianCalendar({
   };
 
   const calendarDays = generateCalendarDays();
-
-  const formatEthDate = (ethDate: {
-    year: number;
-    month: number;
-    day: number;
-  }) =>
-    `${ethDate.day}/${String(ethDate.month).padStart(2, "0")}/${String(
-      ethDate.year
-    ).padStart(2, "0")}`;
-
   return (
     <div className={styles.container}>
-      <input
-        ref={inputRef}
-        type="text"
-        className={className}
-        value={formatEthDate(currentEthiopian)}
-        readOnly
-        onClick={() => setShowCalendar((prev) => !prev)}
-        style={{ width: "120px", paddingLeft: "30px" }}
-      />
-      <span
-        className={styles.icon}
-        onClick={() => setShowCalendar((prev) => !prev)}
-        ref={iconRef}
-      >
-        <AiOutlineCalendar size={18} />
-      </span>
+      <div className={styles.inputWrapper}>
+        {/* Day Input */}
+        <input
+          type="text"
+          value={String(currentEthiopian.day).padStart(2, "0")}
+          onChange={(e) => {
+            if (digitPattern.test(e.target.value)) {
+              setCurrentEthiopian((prev) => ({
+                ...prev,
+                day: Number(e.target.value) % 31,
+              }));
+            }
+          }}
+          onClick={(e) => {
+            const target = e.target as HTMLInputElement;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+          }}
+          onFocus={(e) => {
+            const target = e.target as HTMLInputElement;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+            setCurrentEthiopian((prev) => ({ ...prev, day: 0 }));
+          }}
+          onBlur={() => {
+            if (currentEthiopian.day === 0) {
+              handleDayClick(1);
+            } else {
+              handleDayClick(currentEthiopian.day);
+            }
+          }}
+          className={`${styles.noCaret} ${styles.input}`}
+        />
+        /{/* Month Input */}
+        <input
+          type="text"
+          value={String(currentEthiopian.month).padStart(2, "0")}
+          onChange={(e) => {
+            if (digitPattern.test(e.target.value)) {
+              setViewMonth(Number(e.target.value) % 14 || 1);
+              setCurrentEthiopian((prev) => ({
+                ...prev,
+                month: Number(e.target.value) % 14,
+              }));
+            }
+          }}
+          onClick={(e) => {
+            const target = e.target as HTMLInputElement;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+          }}
+          onFocus={(e) => {
+            const target = e.target as HTMLInputElement;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+            setCurrentEthiopian((prev) => ({ ...prev, month: 0 }));
+            setViewMonth(1);
+          }}
+          onBlur={() => {
+            handleDayClick(currentEthiopian.day);
+          }}
+          className={`${styles.noCaret} ${styles.input}`}
+        />
+        /{/* Year Input */}
+        <input
+          type="text"
+          value={String(currentEthiopian.year).padStart(4, "0")}
+          onChange={(e) => {
+            if (digitPattern.test(e.target.value)) {
+              let strYear = e.target.value;
+              if (e.target.value.length > 4) {
+                strYear = strYear.slice(-4);
+              }
+              setViewYear(Number(strYear) || 1);
+              setCurrentEthiopian((prev) => ({
+                ...prev,
+                year: Number(strYear),
+              }));
+            }
+          }}
+          onClick={(e) => {
+            const target = e.target as HTMLInputElement;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+          }}
+          onFocus={(e) => {
+            const target = e.target as HTMLInputElement;
+            const length = target.value.length;
+            target.setSelectionRange(length, length);
+            setViewYear(1);
+            setCurrentEthiopian((prev) => ({
+              ...prev,
+              year: 0,
+            }));
+          }}
+          onBlur={() => {
+            handleDayClick(currentEthiopian.day);
+          }}
+          className={`${styles.noCaret} ${styles.input}`}
+        />
+        <span
+          className={styles.icon}
+          onClick={() => setShowCalendar(true)}
+          ref={iconRef}
+        >
+          <AiOutlineCalendar size={18} />
+        </span>
+      </div>
       {showCalendar && (
         <div
           ref={calendarRef}

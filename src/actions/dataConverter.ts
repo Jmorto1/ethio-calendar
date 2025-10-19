@@ -37,7 +37,9 @@ export function gregorianToEthiopian(date: Date): {
     const l = Math.floor(k / 11);
     const m = k + 2 - 12 * l;
     const y = 100 * (n - 49) + i + l;
-    return new Date(y, m - 1, d);
+    const date = new Date(y, m - 1, d);
+    date.setFullYear(y); 
+    return date;
   }
   export const ETHIOPIAN_MONTHS = [
     "መስከረም",
@@ -59,6 +61,6 @@ export function gregorianToEthiopian(date: Date): {
     month: number;
     day: number;
   }) =>
-    `${ethDate.year}-${String(ethDate.month).padStart(2, "0")}-${String(
+    `${String(ethDate.year).padStart(4, "0")}-${String(ethDate.month).padStart(2, "0")}-${String(
       ethDate.day
     ).padStart(2, "0")}`;

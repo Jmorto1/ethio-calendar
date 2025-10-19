@@ -56,3 +56,8 @@ input:focus {
     font-size: 0.95rem;
   }
 }
+@media (min-width: 1200px){
+  .date-picker {
+      margin-top:13%
+  }
+}

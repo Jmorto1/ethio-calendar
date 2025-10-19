@@ -1,4 +1,5 @@
 # Ethio Calendar Input
+![Ethio Calendar Demo](./public/preview.png)
 
 A lightweight and customizable **Ethiopian Calendar input field** for React (TypeScript + Vite).  
 It works just like the native HTML `<input type="date" />`, but supports the **Ethiopian calendar system** — perfect for modern web apps that need localized date entry.
